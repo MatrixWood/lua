@@ -33,9 +33,9 @@ typedef void* (*lua_Alloc)(void* ud, void* ptr, size_t osize, size_t nsize);
 #define LUA_NUMFLT (LUA_TNUMBER | (1 << 4))
 
 // lua function type 
-#define LUA_TLCL (LUA_TFUNCTION | (0 << 4))
-#define LUA_TLCF (LUA_TFUNCTION | (1 << 4))
-#define LUA_TCCL (LUA_TFUNCTION | (2 << 4))
+#define LUA_TLCL (LUA_TFUNCTION | (0 << 4)) /* Lua closure */
+#define LUA_TLCF (LUA_TFUNCTION | (1 << 4)) /* light C function */
+#define LUA_TCCL (LUA_TFUNCTION | (2 << 4)) /* C closure */
 
 // string type 
 #define LUA_LNGSTR (LUA_TSTRING | (0 << 4))

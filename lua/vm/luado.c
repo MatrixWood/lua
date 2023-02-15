@@ -137,7 +137,7 @@ int luaD_precall(struct lua_State* L, StkId func, int nresult) {
             luaD_checkstack(L, LUA_MINSTACK);
             func = restorestack(L, func_diff);
 
-            next_ci(L, func, nresult);                        
+            next_ci(L, func, nresult);
             int n = (*f)(L);
             assert(L->ci->func + n <= L->ci->top);
             luaD_poscall(L, L->top - n, n);
