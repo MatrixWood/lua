@@ -1,20 +1,3 @@
-/* Copyright (c) 2018 Manistein,https://manistein.github.io/blog/  
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.*/
-
 #ifndef lua_h
 #define lua_h 
 
@@ -33,6 +16,9 @@ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 #define LUA_INTEGER int 
 #define LUA_NUMBER float 
 #endif 
+
+#define lua_assert(c) ((void)0)
+#define check_exp(c, e) (lua_assert(c), e)
 
 // ERROR CODE 
 #define LUA_OK 0
@@ -66,5 +52,12 @@ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 
 // error tips
 #define LUA_ERROR(L, s) printf("LUA ERROR:%s", s);
+
+// mem define
+typedef size_t      lu_mem;
+typedef ptrdiff_t   l_mem;
+
+#define MAX_LUMEM ((lu_mem)(~(lu_mem)0))
+#define MAX_LMEM  (MAX_LUMEM >> 1)
 
 #endif

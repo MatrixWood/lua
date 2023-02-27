@@ -1,20 +1,3 @@
-/* Copyright (c) 2018 Manistein,https://manistein.github.io/blog/  
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.*/
-
 #ifndef luaobject_h
 #define luaobject_h 
 
@@ -41,17 +24,30 @@ typedef void* (*lua_Alloc)(void* ud, void* ptr, size_t osize, size_t nsize);
 #define LUA_LNGSTR (LUA_TSTRING | (0 << 4))
 #define LUA_SHRSTR (LUA_TSTRING | (1 << 4))
 
+// GCObject
+#define CommonHeader struct GCObject* next; lu_byte tt_; lu_byte marked
+#define LUA_GCSTEPMUL 200
+
+struct GCObject {
+    CommonHeader;
+};
+
 typedef union lua_Value {
-    void* p;
-    int b;
-    lua_Integer i;
-    lua_Number n;
-    lua_CFunction f;
+    struct GCObject* gc;
+    void* p;  // light userdata类型变量（由使用者自行释放），和full userdata区分（受GC机制管控）
+    int b;  // 布尔类型值
+    lua_Integer i; // 整形变量，只在LUA_NUMINT时赋值
+    lua_Number n; // 浮点型变量，只在LUA_NUMFLT时赋值，所以为浮点型
+    lua_CFunction f; // light c functions类型变量
 } Value;
 
 typedef struct lua_TValue {
-    Value value_;
-    int tt_;
+    Value value_; // 表示值
+    int tt_; // 表示类型
 } TValue;
+
+typedef struct TString {
+    CommonHeader;
+} TString;
 
 #endif

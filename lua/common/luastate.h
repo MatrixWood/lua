@@ -1,20 +1,3 @@
-/* Copyright (c) 2018 Manistein,https://manistein.github.io/blog/
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.*/
-
 #ifndef luastate_h
 #define luastate_h
 
@@ -22,6 +5,11 @@ THE SOFTWARE.*/
 
 #define LUA_EXTRASPACE sizeof(void *)
 #define G(L) ((L)->l_G)
+
+#define STEPMULADJ 200
+#define GCSTEPMUL 200 
+#define GCSTEPSIZE 1024  //1kb
+#define GCPAUSE 100
 
 typedef TValue *StkId;
 
@@ -35,6 +23,7 @@ struct CallInfo {
 };
 
 typedef struct lua_State {
+  CommonHeader;       // gc header, all gcobject should have the commonheader
   StkId stack;      // 栈
   StkId stack_last; // 从这里开始，栈不能被使用
   StkId top;        // 栈顶，调动函数时动态改变
@@ -42,13 +31,14 @@ typedef struct lua_State {
   // 保护模式中要用到的结构，当抛出异常时，跳出逻辑
   struct lua_longjmp *errorjmp; // 保护模式中，当抛出异常时，跳出逻辑
   int status;                   // lua_State的状态
-  struct lua_State *next; // 下一个lua_State，通常协程创建的时候会产生
   struct lua_State *previous; // 上一个
   struct CallInfo base_ci;  // 虚拟机线程类型实例生命周期保持一致的基础函数调用信息
   struct CallInfo *ci;      // 当前被调用函数信息
+  int nci;
   struct global_State *l_G; // global_State指针
   ptrdiff_t errorfunc;      // 错误函数位于栈的哪个位置
   int ncalls;               //进行了多少次调用
+  struct GCObject* gclist;
 } lua_State;
 
 typedef struct global_State {
@@ -58,7 +48,25 @@ typedef struct global_State {
                                   // 因此它始终是NULL
   lua_CFunction panic;            // 当调用LUA_THROW接口时，如果当前不处于保护模式，那么会直接调用panic函数
                                   // panic函数通常是输出一些关键日志
+  //gc fields
+  lu_byte gcstate;
+  lu_byte currentwhite;
+  struct GCObject* allgc;         // gc root set
+  struct GCObject** sweepgc;
+  struct GCObject* gray;
+  struct GCObject* grayagain;
+  lu_mem totalbytes;
+  l_mem GCdebt;                   // GCdebt will be negative
+  lu_mem GCmemtrav;               // per gc step traverse memory bytes 
+  lu_mem GCestimate;              // after finish a gc cycle,it records total memory bytes (totalbytes + GCdebt)
+  int GCstepmul;
 } global_State;
+
+// GCUnion
+union GCUnion {
+    struct GCObject gc;
+    lua_State th;
+};
 
 struct lua_State *lua_newstate(lua_Alloc alloc, void *ud);
 void lua_close(struct lua_State *L);
@@ -88,5 +96,6 @@ int lua_isnil(struct lua_State *L, int idx);
 void lua_settop(struct lua_State *L, int idx);
 int lua_gettop(struct lua_State *L);
 void lua_pop(struct lua_State *L);
+TValue* index2addr(struct lua_State* L, int idx);
 
 #endif

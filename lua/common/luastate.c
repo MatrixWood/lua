@@ -1,22 +1,6 @@
-/* Copyright (c) 2018 Manistein,https://manistein.github.io/blog/  
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.*/
-
 #include "luastate.h"
 #include "luamem.h"
+#include "luagc.h"
 
 typedef struct LX {
     lu_byte extra_[LUA_EXTRASPACE];
@@ -32,7 +16,7 @@ static void stack_init(struct lua_State* L) {
     L->stack = (StkId)luaM_realloc(L, NULL, 0, LUA_STACKSIZE * sizeof(TValue));
     L->stack_size = LUA_STACKSIZE;
     L->stack_last = L->stack + LUA_STACKSIZE - LUA_EXTRASTACK;
-    L->next = L->previous = NULL;
+    L->previous = NULL;
     L->status = LUA_OK;
     L->errorjmp = NULL;
     L->top = L->stack;
@@ -54,7 +38,7 @@ struct lua_State* lua_newstate(lua_Alloc alloc, void* ud) {
     struct global_State* g;
     struct lua_State* L;
     
-    struct LG* lg = (struct LG*)(*alloc)(ud, NULL, LUA_TTHREAD, sizeof(struct LG));
+    struct LG* lg = (struct LG*)(*alloc)(ud, NULL, 0, sizeof(struct LG));
     if (!lg) {
         return NULL;
     }
@@ -64,8 +48,26 @@ struct lua_State* lua_newstate(lua_Alloc alloc, void* ud) {
     g->panic = NULL;
     
     L = &lg->l.l;
+    L->nci = 0;
     G(L) = g;
     g->mainthread = L;
+
+    // gc init
+    g->gcstate = GCSpause;
+    g->currentwhite = bitmask(WHITE0BIT);
+    g->totalbytes = sizeof(LG);
+    g->allgc = NULL;
+    g->sweepgc = NULL;
+    g->gray = NULL;
+    g->grayagain = NULL;
+    g->GCdebt = 0;
+    g->GCmemtrav = 0;
+    g->GCestimate = 0;
+    g->GCstepmul = LUA_GCSTEPMUL;
+
+    L->marked = luaC_white(g);
+    L->gclist = NULL;
+    L->tt_ = LUA_TTHREAD;
 
     stack_init(L);
 
@@ -76,7 +78,7 @@ struct lua_State* lua_newstate(lua_Alloc alloc, void* ud) {
 
 static void free_stack(struct lua_State* L) {
     global_State* g = G(L);
-    (*g->frealloc)(g->ud, L->stack, sizeof(TValue), 0);
+    luaM_free(L, L->stack, sizeof(TValue));
     L->stack = L->stack_last = L->top = NULL;
     L->stack_size = 0;
 }
@@ -84,14 +86,17 @@ static void free_stack(struct lua_State* L) {
 void lua_close(struct lua_State* L) {
     struct global_State* g = G(L);
     struct lua_State* L1 = g->mainthread; // only mainthread can be close
-    
-    // because I have not implement gc, so we should free ci manual 
-    struct CallInfo* ci = &L1->base_ci;
-    while(ci->next) {
-        struct CallInfo* next = ci->next->next;
-        struct CallInfo* free_ci = ci->next;
 
-        (*g->frealloc)(g->ud, free_ci, sizeof(struct CallInfo), 0);
+    luaC_freeallobjects(L);
+    
+    struct CallInfo* base_ci = &L1->base_ci;
+    struct CallInfo* ci = base_ci->next;
+
+    while(ci) {
+        struct CallInfo* next = ci->next;
+        struct CallInfo* free_ci = ci;
+
+        luaM_free(L, free_ci, sizeof(struct CallInfo));
         ci = next;
     }
 
@@ -168,7 +173,7 @@ void lua_pushlightuserdata(struct lua_State* L, void* p) {
     increase_top(L);
 }
 
-static TValue* index2addr(struct lua_State* L, int idx) {
+TValue* index2addr(struct lua_State* L, int idx) {
     if (idx >= 0) {
         assert(L->ci->func + idx < L->ci->top);
         return L->ci->func + idx;

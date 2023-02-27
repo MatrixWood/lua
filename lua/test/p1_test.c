@@ -1,4 +1,6 @@
 #include "luaaux.h"
+#include "luado.h"
+#include "luastate.h"
 
 // test case 1
 static int test_main01(struct lua_State* L) {
@@ -7,9 +9,15 @@ static int test_main01(struct lua_State* L) {
     return 0;
 }
 
+static int add_op(struct lua_State* L) {
+    //lua_pushstring(L, "error string");
+    luaD_throw(L, LUA_ERRRUN);
+    return 1;
+}
+
 void p1_test_result01() { // nwant = 0; and nresult = 0;
     struct lua_State* L = luaL_newstate();
-    luaL_pushcfunction(L, &test_main01);
+    luaL_pushcfunction(L, &add_op);
     luaL_pushinteger(L, 1);
     luaL_pcall(L, 1, 0);
     luaL_close(L);
