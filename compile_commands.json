@@ -1,36 +1,46 @@
 [
 {
   "directory": "/Users/canftin/git_repos/github/canftin/lua",
-  "arguments": ["clang", "-c", "-Qunused-arguments", "-target", "arm64-apple-macos13.1", "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk", "-fvisibility=hidden", "-Wall", "-Wextra", "-O3", "-std=c11", "-Ilua/common", "-Ilua/vm", "-Ilua/clib", "-Ilua/test", "-DNDEBUG", "-o", "build/.objs/lua/macosx/arm64/release/lua/common/luaobject.c.o", "lua/common/luaobject.c"],
+  "arguments": ["clang", "-c", "-Qunused-arguments", "-target", "arm64-apple-macos13.1", "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk", "-g", "-Wall", "-Wextra", "-O0", "-std=c11", "-Ilua/common", "-Ilua/vm", "-Ilua/clib", "-Ilua/test", "-o", "build/.objs/lua/macosx/arm64/debug/lua/common/luaobject.c.o", "lua/common/luaobject.c"],
   "file": "lua/common/luaobject.c"
 },
 {
   "directory": "/Users/canftin/git_repos/github/canftin/lua",
-  "arguments": ["clang", "-c", "-Qunused-arguments", "-target", "arm64-apple-macos13.1", "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk", "-fvisibility=hidden", "-Wall", "-Wextra", "-O3", "-std=c11", "-Ilua/common", "-Ilua/vm", "-Ilua/clib", "-Ilua/test", "-DNDEBUG", "-o", "build/.objs/lua/macosx/arm64/release/lua/common/luastate.c.o", "lua/common/luastate.c"],
+  "arguments": ["clang", "-c", "-Qunused-arguments", "-target", "arm64-apple-macos13.1", "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk", "-g", "-Wall", "-Wextra", "-O0", "-std=c11", "-Ilua/common", "-Ilua/vm", "-Ilua/clib", "-Ilua/test", "-o", "build/.objs/lua/macosx/arm64/debug/lua/common/luastate.c.o", "lua/common/luastate.c"],
   "file": "lua/common/luastate.c"
 },
 {
   "directory": "/Users/canftin/git_repos/github/canftin/lua",
-  "arguments": ["clang", "-c", "-Qunused-arguments", "-target", "arm64-apple-macos13.1", "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk", "-fvisibility=hidden", "-Wall", "-Wextra", "-O3", "-std=c11", "-Ilua/common", "-Ilua/vm", "-Ilua/clib", "-Ilua/test", "-DNDEBUG", "-o", "build/.objs/lua/macosx/arm64/release/lua/common/luamem.c.o", "lua/common/luamem.c"],
+  "arguments": ["clang", "-c", "-Qunused-arguments", "-target", "arm64-apple-macos13.1", "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk", "-g", "-Wall", "-Wextra", "-O0", "-std=c11", "-Ilua/common", "-Ilua/vm", "-Ilua/clib", "-Ilua/test", "-o", "build/.objs/lua/macosx/arm64/debug/lua/common/luamem.c.o", "lua/common/luamem.c"],
   "file": "lua/common/luamem.c"
 },
 {
   "directory": "/Users/canftin/git_repos/github/canftin/lua",
-  "arguments": ["clang", "-c", "-Qunused-arguments", "-target", "arm64-apple-macos13.1", "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk", "-fvisibility=hidden", "-Wall", "-Wextra", "-O3", "-std=c11", "-Ilua/common", "-Ilua/vm", "-Ilua/clib", "-Ilua/test", "-DNDEBUG", "-o", "build/.objs/lua/macosx/arm64/release/lua/vm/luado.c.o", "lua/vm/luado.c"],
+  "arguments": ["clang", "-c", "-Qunused-arguments", "-target", "arm64-apple-macos13.1", "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk", "-g", "-Wall", "-Wextra", "-O0", "-std=c11", "-Ilua/common", "-Ilua/vm", "-Ilua/clib", "-Ilua/test", "-o", "build/.objs/lua/macosx/arm64/debug/lua/vm/luagc.c.o", "lua/vm/luagc.c"],
+  "file": "lua/vm/luagc.c"
+},
+{
+  "directory": "/Users/canftin/git_repos/github/canftin/lua",
+  "arguments": ["clang", "-c", "-Qunused-arguments", "-target", "arm64-apple-macos13.1", "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk", "-g", "-Wall", "-Wextra", "-O0", "-std=c11", "-Ilua/common", "-Ilua/vm", "-Ilua/clib", "-Ilua/test", "-o", "build/.objs/lua/macosx/arm64/debug/lua/vm/luado.c.o", "lua/vm/luado.c"],
   "file": "lua/vm/luado.c"
 },
 {
   "directory": "/Users/canftin/git_repos/github/canftin/lua",
-  "arguments": ["clang", "-c", "-Qunused-arguments", "-target", "arm64-apple-macos13.1", "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk", "-fvisibility=hidden", "-Wall", "-Wextra", "-O3", "-std=c11", "-Ilua/common", "-Ilua/vm", "-Ilua/clib", "-Ilua/test", "-DNDEBUG", "-o", "build/.objs/lua/macosx/arm64/release/lua/clib/luaaux.c.o", "lua/clib/luaaux.c"],
+  "arguments": ["clang", "-c", "-Qunused-arguments", "-target", "arm64-apple-macos13.1", "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk", "-g", "-Wall", "-Wextra", "-O0", "-std=c11", "-Ilua/common", "-Ilua/vm", "-Ilua/clib", "-Ilua/test", "-o", "build/.objs/lua/macosx/arm64/debug/lua/clib/luaaux.c.o", "lua/clib/luaaux.c"],
   "file": "lua/clib/luaaux.c"
 },
 {
   "directory": "/Users/canftin/git_repos/github/canftin/lua",
-  "arguments": ["clang", "-c", "-Qunused-arguments", "-target", "arm64-apple-macos13.1", "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk", "-fvisibility=hidden", "-Wall", "-Wextra", "-O3", "-std=c11", "-Ilua/common", "-Ilua/vm", "-Ilua/clib", "-Ilua/test", "-DNDEBUG", "-o", "build/.objs/lua/macosx/arm64/release/lua/test/main.c.o", "lua/test/main.c"],
+  "arguments": ["clang", "-c", "-Qunused-arguments", "-target", "arm64-apple-macos13.1", "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk", "-g", "-Wall", "-Wextra", "-O0", "-std=c11", "-Ilua/common", "-Ilua/vm", "-Ilua/clib", "-Ilua/test", "-o", "build/.objs/lua/macosx/arm64/debug/lua/test/p2_test.c.o", "lua/test/p2_test.c"],
+  "file": "lua/test/p2_test.c"
+},
+{
+  "directory": "/Users/canftin/git_repos/github/canftin/lua",
+  "arguments": ["clang", "-c", "-Qunused-arguments", "-target", "arm64-apple-macos13.1", "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk", "-g", "-Wall", "-Wextra", "-O0", "-std=c11", "-Ilua/common", "-Ilua/vm", "-Ilua/clib", "-Ilua/test", "-o", "build/.objs/lua/macosx/arm64/debug/lua/test/main.c.o", "lua/test/main.c"],
   "file": "lua/test/main.c"
 },
 {
   "directory": "/Users/canftin/git_repos/github/canftin/lua",
-  "arguments": ["clang", "-c", "-Qunused-arguments", "-target", "arm64-apple-macos13.1", "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk", "-fvisibility=hidden", "-Wall", "-Wextra", "-O3", "-std=c11", "-Ilua/common", "-Ilua/vm", "-Ilua/clib", "-Ilua/test", "-DNDEBUG", "-o", "build/.objs/lua/macosx/arm64/release/lua/test/p1_test.c.o", "lua/test/p1_test.c"],
+  "arguments": ["clang", "-c", "-Qunused-arguments", "-target", "arm64-apple-macos13.1", "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk", "-g", "-Wall", "-Wextra", "-O0", "-std=c11", "-Ilua/common", "-Ilua/vm", "-Ilua/clib", "-Ilua/test", "-o", "build/.objs/lua/macosx/arm64/debug/lua/test/p1_test.c.o", "lua/test/p1_test.c"],
   "file": "lua/test/p1_test.c"
 }]

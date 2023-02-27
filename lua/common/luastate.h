@@ -49,17 +49,18 @@ typedef struct global_State {
   lua_CFunction panic;            // 当调用LUA_THROW接口时，如果当前不处于保护模式，那么会直接调用panic函数
                                   // panic函数通常是输出一些关键日志
   //gc fields
-  lu_byte gcstate;
-  lu_byte currentwhite;
-  struct GCObject* allgc;         // gc root set
-  struct GCObject** sweepgc;
-  struct GCObject* gray;
-  struct GCObject* grayagain;
-  lu_mem totalbytes;
-  l_mem GCdebt;                   // GCdebt will be negative
-  lu_mem GCmemtrav;               // per gc step traverse memory bytes 
-  lu_mem GCestimate;              // after finish a gc cycle,it records total memory bytes (totalbytes + GCdebt)
-  int GCstepmul;
+  lu_byte gcstate;                // 标记gc当前处于哪个阶段
+  lu_byte currentwhite;           // 当前gc是哪种白色，10与01中的一种，在gc的atomic阶段结束时，会从一种切换为另一种
+  struct GCObject* allgc;         // 所有新建的gc对象，都要放入到这个链表中，放入的方式是直接放在链表的头部
+  struct GCObject** sweepgc;      // 用于记录当前sweep进度
+  struct GCObject* gray;          // gc对象，首次从白色被标记为灰色的时候，会被放入这个列表，放入这个列表的gc对象，是准备被propagate的对象
+  struct GCObject* grayagain;     // 从黑色变回灰色时，会放入这个链表中，作用是避免table反复在黑色和灰色之间来回切换重复扫描
+  lu_mem totalbytes;              // 记录开辟内存字节大小的变量之一，真实的大小是totalbytes+GCdebt
+  l_mem GCdebt;                   // 可以为负数，当GCdebt>0时才能触发gc流程
+  lu_mem GCmemtrav;               // 每次进行gc操作时，所遍历的对象字节大小之和，单位是byte，当其值大于单步执行的内存上限时，gc终止
+  lu_mem GCestimate;              // 在sweep阶段结束时，会被重新计算，本质是totalbytes+GCdebt，它的作用是，在本轮gc结束时，将自身扩充两倍大小，
+                                  // 然后让真实大小减去扩充后的自己得到差debt，然后totalbytes会等于扩充后的自己，而GCdebt则会被负数debt赋值，就是是说下一次执行gc流程，要在有|debt|个bytes内存被开辟后，才会开始。目的是避免gc太过频繁
+  int GCstepmul;                  // 一个和GC单次处理多少字节相关的参数
 } global_State;
 
 // GCUnion
