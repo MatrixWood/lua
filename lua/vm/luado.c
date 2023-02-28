@@ -95,8 +95,16 @@ int luaD_rawrunprotected(struct lua_State* L, Pfunc f, void* ud) {
 static struct CallInfo* next_ci(struct lua_State* L, StkId func, int nresult) {
     struct global_State* g = G(L);
     struct CallInfo* ci;
-    ci = luaM_realloc(L, NULL, 0, sizeof(struct CallInfo));
-    ci->next = NULL;
+
+    if (L->ci->next) {
+        ci = L->ci->next;
+    }
+    else {
+        ci = luaM_realloc(L, NULL, 0, sizeof(struct CallInfo));
+        ci->next = NULL;
+        L->nci++;
+    }
+    
     ci->previous = L->ci;
     L->ci->next = ci;
     ci->nresult = nresult;
@@ -120,7 +128,7 @@ int luaD_precall(struct lua_State* L, StkId func, int nresult) {
             luaD_checkstack(L, LUA_MINSTACK);
             func = restorestack(L, func_diff);
 
-            next_ci(L, func, nresult);
+            next_ci(L, func, nresult);                        
             int n = (*f)(L);
             assert(L->ci->func + n <= L->ci->top);
             luaD_poscall(L, L->top - n, n);
@@ -201,12 +209,7 @@ int luaD_poscall(struct lua_State* L, StkId first_result, int nresult) {
 
     struct CallInfo* ci = L->ci;
     L->ci = ci->previous;
-    L->ci->next = NULL;
     
-    // because we have not implement gc, so we should free ci manually
-    struct global_State* g = G(L);
-    (*g->frealloc)(g->ud, ci, sizeof(struct CallInfo), 0); 
-
     return LUA_OK;
 }
 
@@ -227,10 +230,6 @@ static void reset_unuse_stack(struct lua_State* L, ptrdiff_t old_top) {
     struct global_State* g = G(L);
     StkId top = restorestack(L, old_top);
     for (; top < L->top; top++) {
-        if (top->value_.p) {
-            (*g->frealloc)(g->ud, top->value_.p, sizeof(top->value_.p), 0);
-            top->value_.p = NULL; 
-        }
         top->tt_ = LUA_TNIL;
     }
 }
@@ -242,23 +241,6 @@ int luaD_pcall(struct lua_State* L, Pfunc f, void* ud, ptrdiff_t oldtop, ptrdiff
     
     status = luaD_rawrunprotected(L, f, ud);
     if (status != LUA_OK) {
-        // because we have not implement gc, so we should free ci manually
-        struct global_State* g = G(L);
-        struct CallInfo* free_ci = L->ci;
-        while(free_ci) {
-            if (free_ci == old_ci) {
-                free_ci = free_ci->next;
-                continue;
-            }
-
-            struct CallInfo* previous = free_ci->previous;
-            previous->next = NULL;
-            
-            struct CallInfo* next = free_ci->next;
-            (*g->frealloc)(g->ud, free_ci, sizeof(struct CallInfo), 0);
-            free_ci = next;
-        }
-        
         reset_unuse_stack(L, oldtop);
         L->ci = old_ci;
         L->top = restorestack(L, oldtop);

@@ -6,8 +6,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include <stddef.h>
 #include <assert.h>
+#include <limits.h>
+#include <time.h>
 
 #if defined(LLONG_MAX)
 #define LUA_INTEGER long

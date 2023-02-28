@@ -11,6 +11,10 @@
 #define GCSTEPSIZE 1024  //1kb
 #define GCPAUSE 100
 
+// size for string cache
+#define STRCACHE_M 53
+#define STRCACHE_N 2
+
 typedef TValue *StkId;
 
 struct CallInfo {
@@ -41,6 +45,13 @@ typedef struct lua_State {
   struct GCObject* gclist;
 } lua_State;
 
+// only for short string
+struct stringtable {
+    struct TString** hash;
+    unsigned int nuse; // 表示有多少个经过内部化的短字符串
+    unsigned int size; // 表示这个stringtable结构内部的hash数组的大小有多大
+};
+
 typedef struct global_State {
   struct lua_State* mainthread;   // 我们的lua_State其实是lua thread，某种程度上来说，它也是协程
   lua_Alloc frealloc;             // 一个可以自定义的内存分配函数
@@ -48,6 +59,12 @@ typedef struct global_State {
                                   // 因此它始终是NULL
   lua_CFunction panic;            // 当调用LUA_THROW接口时，如果当前不处于保护模式，那么会直接调用panic函数
                                   // panic函数通常是输出一些关键日志
+  
+  struct stringtable strt;
+  TString* strcache[STRCACHE_M][STRCACHE_N];
+  unsigned int seed;              // hash seed, just for string hash
+  TString* memerrmsg;             // 不可被gc回收
+
   //gc fields
   lu_byte gcstate;                // 标记gc当前处于哪个阶段
   lu_byte currentwhite;           // 当前gc是哪种白色，10与01中的一种，在gc的atomic阶段结束时，会从一种切换为另一种
@@ -55,6 +72,7 @@ typedef struct global_State {
   struct GCObject** sweepgc;      // 用于记录当前sweep进度
   struct GCObject* gray;          // gc对象，首次从白色被标记为灰色的时候，会被放入这个列表，放入这个列表的gc对象，是准备被propagate的对象
   struct GCObject* grayagain;     // 从黑色变回灰色时，会放入这个链表中，作用是避免table反复在黑色和灰色之间来回切换重复扫描
+  struct GCObject* fixgc;         // objects can not collect by gc
   lu_mem totalbytes;              // 记录开辟内存字节大小的变量之一，真实的大小是totalbytes+GCdebt
   l_mem GCdebt;                   // 可以为负数，当GCdebt>0时才能触发gc流程
   lu_mem GCmemtrav;               // 每次进行gc操作时，所遍历的对象字节大小之和，单位是byte，当其值大于单步执行的内存上限时，gc终止
@@ -67,6 +85,7 @@ typedef struct global_State {
 union GCUnion {
     struct GCObject gc;
     lua_State th;
+    TString ts;
 };
 
 struct lua_State *lua_newstate(lua_Alloc alloc, void *ud);
@@ -78,6 +97,7 @@ void setfltvalue(StkId target, float number);
 void setbvalue(StkId target, bool b);
 void setnilvalue(StkId target);
 void setpvalue(StkId target, void *p);
+void setgco(StkId target, struct GCObject* gco);
 
 void setobj(StkId target, StkId value);
 
@@ -88,11 +108,13 @@ void lua_pushnumber(struct lua_State *L, float number);
 void lua_pushboolean(struct lua_State *L, bool b);
 void lua_pushnil(struct lua_State *L);
 void lua_pushlightuserdata(struct lua_State *L, void *p);
+void lua_pushstring(struct lua_State* L, const char* str);
 
 lua_Integer lua_tointegerx(struct lua_State *L, int idx, int *isnum);
 lua_Number lua_tonumberx(struct lua_State *L, int idx, int *isnum);
 bool lua_toboolean(struct lua_State *L, int idx);
 int lua_isnil(struct lua_State *L, int idx);
+char* lua_tostring(struct lua_State* L, int idx);
 
 void lua_settop(struct lua_State *L, int idx);
 int lua_gettop(struct lua_State *L);
